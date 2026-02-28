@@ -1,0 +1,35 @@
+{
+  "name": "postgre-sql-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hellvita/postgre-sql-test.git"
+  },
+  "keywords": [],
+  "author": "hellvita <seredaolga03@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hellvita/postgre-sql-test/issues"
+  },
+  "homepage": "https://github.com/hellvita/postgre-sql-test#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.2",
+    "globals": "^17.3.0",
+    "nodemon": "^3.1.14"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "http-errors": "^2.0.1",
+    "pino-pretty": "^13.1.3"
+  }
+}
