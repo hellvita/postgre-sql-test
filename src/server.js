@@ -9,6 +9,9 @@ import createHttpError from 'http-errors';
 import { createNoteSchema } from './db/validation/notesValidation.js';
 import prisma from './db/connectPostgreDB.js';
 
+import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { errorHandler } from './middleware/errorHandler.js';
+
 export const startServer = () => {
   const app = express();
   const PORT = Number.parseInt(getEnv(ENV_VARS.app.PORT)) || 3000;
@@ -39,11 +42,14 @@ export const startServer = () => {
     const note = await prisma.note.findUnique({ where: { id: noteId } });
 
     if (!note) {
-      return createHttpError(404, 'Note not found');
+      throw createHttpError(404, 'Note not found');
     }
 
     res.status(200).json(note);
   });
+
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   app.listen(PORT, (error) => {
     if (error) {
