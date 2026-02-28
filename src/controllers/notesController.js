@@ -20,9 +20,7 @@ export const getNoteById = async (req, res) => {
 
   const note = await prisma.note.findUnique({ where: { id: noteId } });
 
-  if (!note) {
-    throw createHttpError(404, 'Note not found');
-  }
+  if (!note) throw createHttpError(404, 'Note not found');
 
   res.status(200).json(note);
 };
@@ -42,12 +40,6 @@ export const createNote = async (req, res) => {
 export const updateNoteById = async (req, res) => {
   const { noteId } = req.params;
 
-  const noteToUpdate = await prisma.note.findUnique({ where: { id: noteId } });
-
-  if (!noteToUpdate) {
-    throw createHttpError(404, 'Note not found');
-  }
-
   const result = updateNoteSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -60,4 +52,14 @@ export const updateNoteById = async (req, res) => {
   });
 
   res.status(200).json(updatedNote);
+};
+
+export const deleteNoteById = async (req, res) => {
+  const { noteId } = req.params;
+
+  const deletedNote = await prisma.note.delete({ where: { id: noteId } });
+
+  if (!deletedNote) throw createHttpError(404, 'Note not found');
+
+  res.status(200).json(deletedNote);
 };
