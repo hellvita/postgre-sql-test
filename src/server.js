@@ -5,6 +5,9 @@ import express from 'express';
 import cors from 'cors';
 import { logger } from './middleware/logger.js';
 
+import { createNoteSchema } from './db/validation/notesValidation.js';
+import prisma from './db/connectPostgreDB.js';
+
 export const startServer = () => {
   const app = express();
   const PORT = Number.parseInt(getEnv(ENV_VARS.app.PORT)) || 3000;
@@ -15,6 +18,18 @@ export const startServer = () => {
 
   app.get('/', (req, res) => {
     res.status(200).json({ message: 'this is home' });
+  });
+
+  app.post('/notes', async (req, res) => {
+    const result = createNoteSchema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json(result.error);
+    }
+
+    const newNote = await prisma.note.create({ data: result.data });
+
+    res.status(201).json(newNote);
   });
 
   app.listen(PORT, (error) => {

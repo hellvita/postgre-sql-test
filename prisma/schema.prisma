@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../node_modules/.prisma/client" 
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Tag {
+  Todo
+  Work
+  Personal
+  Meeting
+  Shopping
+  Ideas
+  Travel
+  Finance
+  Health
+  Important
+}
+
+model Note {
+    id String @id @default(uuid())
+    title String
+    content String? @default("")
+    tag Tag @default(Todo)
+    createdAt DateTime @default(now())
+}
