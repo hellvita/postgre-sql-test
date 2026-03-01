@@ -7,6 +7,14 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id String @id @default(uuid())
+  email   String   @unique
+  username String
+  password String
+  notes Note[]
+}
+
 enum Tag {
   Todo
   Work
@@ -26,4 +34,6 @@ model Note {
     content String? @default("")
     tag Tag @default(Todo)
     createdAt DateTime @default(now())
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
 }
