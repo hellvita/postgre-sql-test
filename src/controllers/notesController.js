@@ -1,3 +1,5 @@
+import { TEMPORARY_USER_ID } from '../constants/user.js';
+
 import createHttpError from 'http-errors';
 import prisma from '../db/connectPostgreDB.js';
 import {
@@ -6,7 +8,9 @@ import {
 } from '../db/validation/notesValidation.js';
 
 export const getAllNotes = async (req, res) => {
-  const notes = await prisma.note.findMany();
+  const notes = await prisma.note.findMany({
+    where: { userId: TEMPORARY_USER_ID },
+  });
 
   if (!notes) {
     throw createHttpError(404, 'Notes not found');
@@ -18,7 +22,9 @@ export const getAllNotes = async (req, res) => {
 export const getNoteById = async (req, res) => {
   const { noteId } = req.params;
 
-  const note = await prisma.note.findUnique({ where: { id: noteId } });
+  const note = await prisma.note.findUnique({
+    where: { id: noteId, userId: TEMPORARY_USER_ID },
+  });
 
   if (!note) throw createHttpError(404, 'Note not found');
 
@@ -31,6 +37,8 @@ export const createNote = async (req, res) => {
   if (!result.success) {
     return res.status(400).json(result.error);
   }
+
+  result.data.userId = TEMPORARY_USER_ID;
 
   const newNote = await prisma.note.create({ data: result.data });
 
@@ -47,7 +55,7 @@ export const updateNoteById = async (req, res) => {
   }
 
   const updatedNote = await prisma.note.update({
-    where: { id: noteId },
+    where: { id: noteId, userId: TEMPORARY_USER_ID },
     data: result.data,
   });
 
@@ -57,7 +65,9 @@ export const updateNoteById = async (req, res) => {
 export const deleteNoteById = async (req, res) => {
   const { noteId } = req.params;
 
-  const deletedNote = await prisma.note.delete({ where: { id: noteId } });
+  const deletedNote = await prisma.note.delete({
+    where: { id: noteId, userId: TEMPORARY_USER_ID },
+  });
 
   if (!deletedNote) throw createHttpError(404, 'Note not found');
 
