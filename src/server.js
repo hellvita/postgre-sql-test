@@ -8,6 +8,7 @@ import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
+import userRoutes from './routes/userRoutes.js';
 import notesRoutes from './routes/notesRoutes.js';
 
 export const startServer = () => {
@@ -22,6 +23,7 @@ export const startServer = () => {
     res.status(200).json({ message: 'this is home' });
   });
 
+  app.use(userRoutes);
   app.use(notesRoutes);
 
   app.use(notFoundHandler);
