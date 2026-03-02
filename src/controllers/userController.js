@@ -1,41 +1,23 @@
-import { TEMPORARY_USER_ID } from '../constants/user.js';
-
 import createHttpError from 'http-errors';
-import prisma from '../db/connectPostgreDB.js';
-import bcrypt from 'bcrypt';
+import { deleteUserById, getUserId } from '../services/user.js';
+import { clearSessionCookies } from '../services/auth.js';
 
-import { createUserSchema } from '../db/validation/userValidation.js';
+export const deleteUserByIdController = async (req, res) => {
+  const { refreshToken } = req.cookies;
 
-export const createUser = async (req, res) => {
-  const username = req.body.email.split('@')[0];
-  const password = await bcrypt.hash(req.body.password, 10);
+  const userId = await getUserId(refreshToken);
 
-  req.body.username = username;
-  req.body.password = password;
+  if (!userId) throw createHttpError(404, 'User not found');
 
-  const result = createUserSchema.safeParse(req.body);
-
-  if (!result.success) {
-    throw createHttpError(400, result.error);
-  }
-
-  const newUser = await prisma.user.create({ data: result.data });
-
-  res.status(201).json(newUser);
-};
-
-export const deleteUserById = async (req, res) => {
-  const deletedUser = await prisma.user.delete({
-    where: { id: TEMPORARY_USER_ID },
-  });
+  const deletedUser = await deleteUserById(userId);
 
   if (!deletedUser) throw createHttpError(404, 'User not found');
 
-  res
-    .status(200)
-    .json({
-      id: deletedUser.id,
-      email: deletedUser.email,
-      username: deletedUser.username,
-    });
+  clearSessionCookies(res);
+
+  res.status(200).json({
+    id: deletedUser.id,
+    email: deletedUser.email,
+    username: deletedUser.username,
+  });
 };
