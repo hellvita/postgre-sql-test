@@ -12,6 +12,16 @@ model User {
   username String
   password String
   notes Note[]
+  sessions Session[]
+}
+
+model Session {
+  id String @id @default(uuid())
+  refreshToken String   @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
 }
 
 enum Tag {
