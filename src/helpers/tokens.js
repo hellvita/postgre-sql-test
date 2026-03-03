@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-import { getEnv } from '../helpers/getEnv.js';
+import createHttpError from 'http-errors';
+
+import { getEnv } from './getEnv.js';
 import { ENV_VARS } from '../constants/env.js';
 
 export const generateTokens = (
@@ -20,4 +22,18 @@ export const generateTokens = (
   const tokens = { accessToken, refreshToken, rtExpiresAt };
 
   return tokens;
+};
+
+export const verifyAccessToken = (accessToken) => {
+  try {
+    const verified = jwt.verify(accessToken, getEnv(ENV_VARS.token.JWT_SECRET));
+
+    return verified ? true : false;
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      throw createHttpError(401, 'Access token expired');
+    } else {
+      throw createHttpError(401, 'Token is invalid');
+    }
+  }
 };
