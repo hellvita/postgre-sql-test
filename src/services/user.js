@@ -24,6 +24,12 @@ export const createUser = async (payload) => {
   return newUser;
 };
 
+export const getUserById = async (userId) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  return user;
+};
+
 export const deleteUserById = async (userId) => {
   const deletedUser = await prisma.user.delete({
     where: { id: userId },
