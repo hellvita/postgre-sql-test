@@ -1,6 +1,6 @@
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 import prisma from '../db/connectPostgreDB.js';
-import { generateTokens } from '../helpers/generateTokens.js';
+import { generateTokens } from '../helpers/tokens.js';
 
 export const getSession = async (refreshToken) => {
   const session = await prisma.session.findUnique({ where: { refreshToken } });
