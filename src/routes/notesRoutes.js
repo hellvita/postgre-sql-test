@@ -1,3 +1,5 @@
+import { authenticate } from '../middleware/authenticate.js';
+
 import { Router } from 'express';
 
 import {
@@ -9,6 +11,8 @@ import {
 } from '../controllers/notesController.js';
 
 const router = Router();
+
+router.use('/notes', authenticate);
 
 router.get('/notes', getAllNotes);
 
