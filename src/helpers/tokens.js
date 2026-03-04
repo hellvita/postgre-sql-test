@@ -37,3 +37,13 @@ export const verifyAccessToken = (accessToken) => {
     }
   }
 };
+
+export const getRefreshToken = (cookie) => {
+  const { refreshToken } = cookie;
+
+  if (!refreshToken) {
+    throw createHttpError(401, 'Missing refresh token');
+  }
+
+  return refreshToken;
+};
