@@ -4,70 +4,88 @@ import {
   createNoteSchema,
   updateNoteSchema,
 } from '../db/validation/notesValidation.js';
+import { handlePrismaError } from '../middleware/prismaErrorHandler.js';
+import { handleValidationError } from '../helpers/handleValidationError.js';
 
 export const getAllNotes = async (req, res) => {
-  const notes = await prisma.note.findMany({
-    where: { userId: req.userId },
-  });
+  try {
+    const notes = await prisma.note.findMany({
+      where: { userId: req.userId },
+    });
 
-  if (!notes) {
-    throw createHttpError(404, 'Notes not found');
+    if (!notes) {
+      throw createHttpError(404, 'Notes not found');
+    }
+
+    res.status(200).json({ notes });
+  } catch (error) {
+    handlePrismaError(error);
   }
-
-  res.status(200).json({ notes });
 };
 
 export const getNoteById = async (req, res) => {
-  const { noteId } = req.params;
+  try {
+    const { noteId } = req.params;
 
-  const note = await prisma.note.findUnique({
-    where: { id: noteId, userId: req.userId },
-  });
+    const note = await prisma.note.findUniqueOrThrow({
+      where: { id: noteId, userId: req.userId },
+    });
 
-  if (!note) throw createHttpError(404, 'Note not found');
-
-  res.status(200).json(note);
+    res.status(200).json(note);
+  } catch (error) {
+    handlePrismaError(error);
+  }
 };
 
 export const createNote = async (req, res) => {
-  const result = createNoteSchema.safeParse(req.body);
+  try {
+    const result = createNoteSchema.safeParse(req.body);
 
-  if (!result.success) {
-    return res.status(400).json(result.error);
+    if (!result.success) {
+      handleValidationError(result);
+    }
+
+    result.data.userId = req.userId;
+
+    const newNote = await prisma.note.create({ data: result.data });
+
+    res.status(201).json(newNote);
+  } catch (error) {
+    handlePrismaError(error);
   }
-
-  result.data.userId = req.userId;
-
-  const newNote = await prisma.note.create({ data: result.data });
-
-  res.status(201).json(newNote);
 };
 
 export const updateNoteById = async (req, res) => {
-  const { noteId } = req.params;
+  try {
+    const { noteId } = req.params;
 
-  const result = updateNoteSchema.safeParse(req.body);
+    const result = updateNoteSchema.safeParse(req.body);
 
-  if (!result.success) {
-    return res.status(400).json(result.error);
+    if (!result.success) {
+      handleValidationError(result);
+    }
+
+    const updatedNote = await prisma.note.update({
+      where: { id: noteId, userId: req.userId },
+      data: result.data,
+    });
+
+    res.status(200).json(updatedNote);
+  } catch (error) {
+    handlePrismaError(error);
   }
-
-  const updatedNote = await prisma.note.update({
-    where: { id: noteId, userId: req.userId },
-    data: result.data,
-  });
-
-  res.status(200).json(updatedNote);
 };
 
 export const deleteNoteById = async (req, res) => {
-  const { noteId } = req.params;
+  try {
+    const { noteId } = req.params;
 
-  const deletedNote = await prisma.note.delete({
-    where: { id: noteId, userId: req.userId },
-  });
+    const deletedNote = await prisma.note.delete({
+      where: { id: noteId, userId: req.userId },
+    });
 
-  if (!deletedNote) throw createHttpError(404, 'Note not found');
-
-  res.status(200).json(deletedNote);
+    res.status(200).json(deletedNote);
+  } catch (error) {
+    handlePrismaError(error);
+  }
 };
